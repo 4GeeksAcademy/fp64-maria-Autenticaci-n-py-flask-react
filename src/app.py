@@ -16,10 +16,17 @@ static_file_dir = os.path.join(
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
-CORS(app, resources={r"/api/*": {"origins": "https://ideal-dollop-v66xgwwp9g49cw55p-3000.app.github.dev"}}, 
-     supports_credentials=True, 
-     allow_headers=["Content-Type", "Authorization"],
-     methods=["GET", "POST", "OPTIONS"])
+CORS(
+    app,
+    resources={
+        r"/api/*": {
+            "origins": "https://ideal-dollop-v66xgwwp9g49cw55p-3000.app.github.dev"
+        }
+    },
+    supports_credentials=True,
+    allow_headers=["Content-Type", "Authorization"],
+    methods=["GET", "POST", "OPTIONS"],
+)
 
 # database configuration
 db_url = os.getenv("DATABASE_URL")
@@ -41,15 +48,18 @@ jwt = JWTManager(app)
 setup_admin(app)
 setup_commands(app)
 
+
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
+
 
 @app.route("/")
 def sitemap():
     if ENV == "development":
         return generate_sitemap(app)
     return send_from_directory(static_file_dir, "index.html")
+
 
 @app.route("/<path:path>", methods=["GET"])
 def serve_any_other_file(path):
@@ -59,9 +69,11 @@ def serve_any_other_file(path):
     response.cache_control.max_age = 0
     return response
 
+
 @app.route("/api/hello", methods=["GET"])
 def hello():
     return jsonify({"message": "Hello, World!"})
+
 
 @app.route("/api/signup", methods=["POST", "OPTIONS"])
 def signup():
@@ -73,6 +85,7 @@ def signup():
         return jsonify({"message": "Signup successful"}), 201
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 @app.route("/api/login", methods=["POST", "OPTIONS"])
 def login():
@@ -87,13 +100,18 @@ def login():
         response = jsonify({"message": "Invalid credentials"})
     return response
 
+
 def build_cors_preflight_response():
     response = jsonify({"message": "CORS preflight successful"})
-    response.headers.add("Access-Control-Allow-Origin", "https://ideal-dollop-v66xgwwp9g49cw55p-3000.app.github.dev")
+    response.headers.add(
+        "Access-Control-Allow-Origin",
+        "https://ideal-dollop-v66xgwwp9g49cw55p-3000.app.github.dev",
+    )
     response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
     response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
     response.headers.add("Access-Control-Allow-Credentials", "true")
     return response
+
 
 app.register_blueprint(api, url_prefix="/api")
 

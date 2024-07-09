@@ -58,7 +58,3 @@ def private_access():
     if not user:
         return jsonify({"msg": "access denied"}), 401
     return jsonify({"user_name": user}), 200
-
-
-
-
